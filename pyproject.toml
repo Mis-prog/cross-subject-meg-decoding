@@ -1,0 +1,22 @@
+[project]
+name = "fqw"
+version = "0.1.0"
+description = "ВКР: межсубъектная генерализация и адаптация при декодировании воспринимаемой речи по МЭГ"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    # Апстрим LISA: ставится editable из code/LISA, пины зависимостей — в его pyproject.toml
+    "lisa[dev]",
+    # PyTorch вынесен сюда намеренно: LISA его не объявляет, так как для CUDA нужен свой index-url.
+    # На macOS/CPU достаточно колеса с PyPI. Для машины с CUDA — см. README LISA.
+    "torch==2.6.0",
+    "notebook>=7",
+    "mlflow==3.16.1",
+]
+
+[tool.uv.sources]
+lisa = { path = "code/LISA", editable = true }
+
+[tool.uv]
+# fqw — не пакет, а рабочее пространство: собирать и устанавливать сам корень не нужно.
+package = false

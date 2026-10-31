@@ -1,0 +1,72 @@
+# --- macOS ---
+.DS_Store
+._*
+
+# --- Python ---
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.pytest_cache/
+.ipynb_checkpoints/
+.cache/
+
+# --- Виртуальные окружения ---
+.venv/
+venv/
+env/
+
+# --- Локальные настройки инструментов ---
+.claude/
+
+# --- Нейроданные и веса (не коммитить) ---
+/data/*
+!/data/README.md
+*.h5
+*.fif
+*.npz
+*.npy
+*.pt
+*.ckpt
+**/*.csv
+**/*.json
+
+# --- Артефакты обучения ---
+outputs/
+experiments/*/runs/
+wandb/
+
+# --- Оригинальный LISA: отдельный checkout, commit зафиксирован в README ---
+/code/LISA/
+
+# --- Тяжёлые материалы семинаров (лежат на диске, в git не хранятся) ---
+/docs/archive/course/materials/
+*.zip
+*.xlsx
+*.docx
+*.pptx
+*.pdf
+
+# --- Логи прогонов на сервере ---
+/logs/
+
+# --- Персональные материалы (не в публичный репозиторий) ---
+/docs/archive/course/transcripts/
+/docs/archive/course/extracted/
+/docs/archive/topic_selection/labs/
+/docs/archive/topic_selection/correspondence/
+/docs/archive/topic_selection/Профиль — интересы и сильные стороны.md
+/_to_delete/
+
+# --- Исходные записи и промежуточные результаты расшифровки ---
+/docs/meetings/recordings/*
+!/docs/meetings/recordings/README.md
+/docs/meetings/transcription/runs/
+
+# --- секреты (MLflow и пр.) ---
+.env
+
+../.m4a
+.idea

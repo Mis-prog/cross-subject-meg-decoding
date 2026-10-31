@@ -1,0 +1,48 @@
+:root { --ink: #152738; --accent: #087f8c; --muted: #5a6976; --orange: #c67631; }
+.slidev-layout { background: #fbfcfd; color: var(--ink); padding: 52px 68px 64px; font-family: Arial, sans-serif; font-size: 27px; line-height: 1.4; }
+.slidev-layout h1 { margin: 0 0 28px; font-size: 46px; font-weight: 700; line-height: 1.15; letter-spacing: -1px; color: var(--ink); }
+.slidev-layout h3 { margin: 0 0 17px; font-size: 28px; font-weight: 700; color: var(--accent); }
+.slidev-layout p { margin: 0 0 22px; }
+.slidev-layout table { margin: 25px 0; width: 100%; border-collapse: collapse; font-size: 24px; line-height: 1.35; }
+.slidev-layout th { color: var(--muted); font-weight: 600; font-size: 21px; text-align: left; border-bottom: 2px solid #ccd6de; padding: 12px 13px; }
+.slidev-layout td { padding: 17px 13px; border-bottom: 1px solid #dde4e9; }
+.slidev-layout tr { border: 0; }
+.wide-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; margin-top: 31px; }
+.wide-columns > div { min-width: 0; }
+.wide-columns h3:not(:first-child) { margin-top: 32px; }
+.task-lead { font-size: 30px; line-height: 1.4; max-width: 1000px; }
+.big-number { font-size: 80px; line-height: 1.05; font-weight: 700; letter-spacing: -2px; color: var(--accent); margin: 19px 0 12px; }
+.big-number span { font-size: 44px; margin-left: 4px; }
+.takeaway { position: absolute; left: 68px; right: 68px; bottom: 72px; color: var(--accent); font-size: 25px; font-weight: 600; line-height: 1.32; }
+.source { position: absolute; left: 68px; right: 68px; bottom: 25px; color: var(--muted); font-size: 14px; line-height: 1.35; }
+.eyebrow { color: var(--accent); font-size: 22px; margin-bottom: 45px; }
+.thesis-cover h1 { font-size: 60px; line-height: 1.15; letter-spacing: -1.5px; margin-bottom: 35px; }
+.cover-subtitle { font-size: 31px; color: var(--muted); line-height: 1.4; }
+.cover-meta { position: absolute; left: 68px; bottom: 62px; font-size: 23px; line-height: 1.55; }
+.goal { font-size: 33px; font-weight: 600; color: var(--accent); line-height: 1.4; margin: 33px 0 30px; }
+.questions { font-size: 28px; line-height: 1.5; padding-left: 31px; }
+.questions li { margin: 17px 0; padding-left: 10px; }
+.matrix { font-size: 43px; margin-top: 29px; }
+.matrix sup { font-size: 27px; }
+.protocol-head { color: var(--accent); font-size: 26px; font-weight: 600; }
+.protocol-head + .wide-columns { margin-top: 29px; font-size: 25px; }
+.chart-slide h1 { margin-bottom: 12px; }
+.chart-summary { display: flex; justify-content: space-between; margin: 0 25px; font-size: 23px; color: var(--muted); }
+.chart-summary strong { color: var(--accent); font-size: 31px; }
+.compact { margin-top: 12px; gap: 40px; font-size: 24px; }
+.compact strong { font-size: 34px; color: var(--accent); }
+.limits { list-style: none; padding: 0; margin-top: 29px; font-size: 26px; line-height: 1.4; }
+.limits li { margin-bottom: 20px; }
+.limits strong { color: var(--accent); font-size: 25px; }
+.roadmap { font-size: 25px; line-height: 1.35; padding-left: 32px; margin-top: 22px; }
+.roadmap li { margin-bottom: 21px; padding-left: 8px; }
+.roadmap strong { color: var(--accent); }
+.appendix table { font-size: 24px; margin-top: 24px; }
+.appendix td { padding: 15px 13px; }
+.stats-list { margin-top: 31px; font-size: 25px; line-height: 1.4; }
+.stats-list li { margin-bottom: 13px; }
+.references { font-size: 22px; line-height: 1.35; }
+.references ol { padding-left: 28px; }
+.references li { margin-bottom: 19px; padding-left: 4px; }
+.references a { color: var(--accent); text-decoration: none; }
+.slidev-layout .references p { margin: 0 0 23px; font-size: 22px; line-height: 1.4; }

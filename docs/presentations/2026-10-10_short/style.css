@@ -1,0 +1,110 @@
+.slidev-layout {
+  background: white;
+  color: #111;
+  padding: 56px 72px 68px;
+  font-family: Arial, sans-serif;
+  font-size: 28px;
+  line-height: 1.42;
+}
+.slidev-layout h1 {
+  color: #111;
+  font-size: 43px;
+  line-height: 1.2;
+  font-weight: 600;
+  margin: 0 0 36px;
+  letter-spacing: 0;
+}
+.slidev-layout h2 {
+  font-size: 29px;
+  font-weight: 600;
+  margin: 30px 0 14px;
+  color: #111;
+}
+.slidev-layout p { margin: 0 0 24px; line-height: 1.35; }
+.slidev-layout h1 + p { opacity: 1; color: #111; }
+.slidev-layout ul, .slidev-layout ol { margin: 24px 0 30px; padding-left: 31px; }
+.slidev-layout li { padding-left: 5px; margin: 0 0 20px; line-height: 1.35; }
+.slidev-layout li p { margin: 0; }
+.slidev-layout a { color: inherit; text-decoration: none; border: none; }
+.slidev-layout .katex { font-size: 1.05em; }
+.slidev-layout.cover { display: block; }
+.slidev-layout.cover h1 { font-size: 43px; line-height: 1.24; font-weight: 600; margin-top: 28px; margin-bottom: 38px; }
+.slidev-layout.cover > p { font-size: 28px; }
+.cover-meta { position: absolute; left: 72px; bottom: 76px; font-size: 26px; line-height: 1.65; }
+.cover-meta span { font-size: 23px; }
+.footnote { position: absolute; bottom: 25px; left: 72px; right: 72px; font-size: 17px; line-height: 1.3; color: #555; }
+.slidev-layout.references { font-size: 24px; }
+.slidev-layout.references li { margin-bottom: 23px; line-height: 1.35; }
+
+
+:root { --accent: #2f6fb5; --accent-dark: #174a85; --accent-soft: #dbe8f7; --muted: #555; --line: #d5d9df; }
+
+/* 2. Задача */
+.slidev-layout.task h1 { margin-bottom: 18px; }
+.task-row { display: flex; align-items: center; gap: 10px; }
+.task-listener { height: 400px; width: auto; flex: none; }
+.task-arrow { font-size: 44px; color: #444; flex: none; }
+.task-retrieval { width: 790px; height: auto; flex: none; }
+.slidev-layout .task-caption { font-size: 24px; margin: 14px 0 0; }
+
+/* 3. Проблема */
+.slidev-layout.problem h1 { margin-bottom: 24px; }
+.arch { display: block; width: 100%; height: auto; }
+.causes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 26px; }
+.causes > div { border-left: 4px solid var(--accent); padding: 4px 0 4px 16px; font-size: 22px; line-height: 1.3; }
+.causes strong { display: block; font-size: 24px; margin-bottom: 4px; }
+.causes span { color: #333; }
+
+/* 4–5. Списки */
+.slidev-layout.goals li { margin-bottom: 22px; }
+.slidev-layout.methods { font-size: 25px; }
+.slidev-layout.methods h1 { margin-bottom: 22px; }
+.slidev-layout.methods p { margin-bottom: 12px; }
+.slidev-layout.methods ol { margin: 6px 0 22px; }
+.slidev-layout.methods li { margin-bottom: 8px; line-height: 1.3; }
+
+/* 6. Статус */
+.slidev-layout.status h1 { margin-bottom: 26px; }
+.status-grid { display: grid; grid-template-columns: 1fr 540px; gap: 40px; align-items: start; }
+.slidev-layout ol.stages { list-style: none; padding: 0; margin: 4px 0 0; counter-reset: st; }
+.slidev-layout ol.stages li { counter-increment: st; position: relative; padding: 0 0 0 54px; margin: 0 0 24px; font-size: 23px; line-height: 1.3; }
+.slidev-layout ol.stages li::before { content: counter(st); position: absolute; left: 0; top: -2px; width: 36px; height: 36px; line-height: 34px; text-align: center; border-radius: 50%; border: 2px solid #8a93a0; color: #555; font-weight: 700; font-size: 20px; }
+.slidev-layout ol.stages li.now::before { background: var(--accent); border-color: var(--accent); color: #fff; }
+.slidev-layout ol.stages li span { display: block; font-size: 19px; color: var(--muted); margin-top: 3px; }
+.slidev-layout ol.stages li.now span { color: var(--accent-dark); }
+.expected { width: 540px; height: auto; display: block; }
+.slidev-layout .chart-note { font-size: 17px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+
+/* Запасной слайд */
+.slidev-layout.backup h1 { font-size: 36px; margin-bottom: 24px; }
+.arch-full { display: block; width: 100%; height: auto; }
+
+/* Обзор литературы */
+.slidev-layout.lit h1 { font-size: 38px; margin-bottom: 20px; }
+.lit-grid { display: flex; flex-direction: column; gap: 10px; }
+.lit-row { display: grid; grid-template-columns: 330px 300px 1fr; gap: 18px; align-items: baseline; border-left: 4px solid var(--accent); padding: 6px 0 6px 14px; font-size: 20px; line-height: 1.28; }
+.lit-row strong { font-size: 21px; }
+.lit-row .lit-src { color: var(--accent-dark); }
+.slidev-layout .lit-gap { margin-top: 20px; font-size: 22px; background: var(--accent-soft); padding: 12px 16px; border-radius: 4px; }
+.slidev-layout.references { font-size: 19px; }
+.slidev-layout.references ol { margin-top: 8px; }
+.slidev-layout.references li { margin-bottom: 8px; line-height: 1.25; }
+
+/* План по кварталам */
+.plan-table table { width: 100%; border-collapse: collapse; font-size: 19px; line-height: 1.3; }
+.plan-table th, .plan-table td { border: 1px solid #999; padding: 9px 12px; text-align: left; vertical-align: top; }
+.plan-table th { font-weight: 600; }
+.plan-table td:first-child { white-space: nowrap; }
+
+/* Вопрос работы на слайде проблемы */
+.slidev-layout .problem-q { margin-top: 8px; font-size: 25px; font-weight: 600; }
+.slidev-layout.problem ul { margin: 14px 0 10px; }
+.slidev-layout.problem li { margin-bottom: 10px; }
+.slidev-layout.goals { font-size: 25px; }
+.slidev-layout.goals p { margin-bottom: 14px; }
+.slidev-layout.goals ol { margin: 6px 0 18px; }
+.slidev-layout.goals li { margin-bottom: 8px; }
+
+/* Обзор литературы: таблица и пробел */
+.slidev-layout.lit .plan-table table { font-size: 18px; }
+.slidev-layout.lit > p { font-size: 22px; margin-top: 18px; }
