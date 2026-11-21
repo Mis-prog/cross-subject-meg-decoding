@@ -1,0 +1,169 @@
+{
+  "name": "exp10_shared_subject_matrix_clean_v2",
+  "fixed_on": "2026-11-05",
+  "upstream_commit": "ff9412e193a3877d07a27b644eb8a2575d357a32",
+  "data": {
+    "preprocessing": "authors' clean pipeline: original MEG-MASC RAW plus supplied manually reviewed ICA from OSF 3wrft; prepare_dataset.sh clean; differs from historical raw-without-ICA exp08/exp09",
+    "subjects": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27
+    ],
+    "validation_sound": [
+      3,
+      4
+    ],
+    "validation_candidates": 108,
+    "test_candidates": 1005,
+    "scaling": "existing authors' per-recording scaling uses unlabeled target recording data; this is not strict transfer without access to target data",
+    "preprocessing_decision": {
+      "date": "2026-11-05",
+      "reason": "User explicitly requested the authors' cleaned-data pipeline before the first real exp10 run.",
+      "supersedes": "2026-11-03 planned raw-without-ICA preprocessing; no real exp10 results existed"
+    },
+    "download_provenance": {
+      "raw": "MEG-MASC NEMAR mirror nm000229 v1.0.1, all files checked against manifest checksums",
+      "raw_manifest": "https://data.nemar.org/nm000229/v1.0.1/manifest.json",
+      "ica": "original authors OSF project 3wrft clean/",
+      "events": "NEMAR events restored to OSF dictionary representation by repository nemar_events_to_osf.py; event timing and signals preserved",
+      "osf_crosscheck": "OSF sub-11/ses-0/task-0 RAW SHA-256 matches NEMAR manifest: e1152af992717906e71188acaa5c1d1837de219394253b30584ddbd541e51d45",
+      "reason": "2026-11-05: user authorized autonomous work and requested first results by 10:00 MSK; mirror selected after faster transfer probe, clean ICA method unchanged"
+    }
+  },
+  "split": {
+    "folds": [
+      [
+        11,
+        20,
+        22
+      ],
+      [
+        1,
+        2,
+        14
+      ],
+      [
+        16,
+        23,
+        26
+      ],
+      [
+        10,
+        19,
+        24
+      ],
+      [
+        12,
+        15,
+        17
+      ],
+      [
+        3,
+        18,
+        27
+      ],
+      [
+        4,
+        9,
+        13
+      ],
+      [
+        6,
+        8,
+        21
+      ],
+      [
+        5,
+        7,
+        25
+      ]
+    ],
+    "rule": "test=fold[k], validation=fold[(k+1)%9], train=remaining 21 subjects; both sessions when available",
+    "training_windows": "canonical df_train27 excluding validation sound, train subjects only",
+    "validation_windows": "canonical df_train27 validation sound, validation subjects only",
+    "test_windows": "canonical df_test27, test subjects only",
+    "calibration_budget": "0 labeled target windows; no target gradient updates"
+  },
+  "seeds": [
+    42
+  ],
+  "routing": {
+    "p_personal": [
+      0.9
+    ],
+    "unit": "independent Bernoulli per example, resampled each training forward",
+    "evaluation": "deterministic common matrix for all validation/test subjects; individual baseline uses mean of training slots only",
+    "rescaling": "none"
+  },
+  "variants": [
+    "individual",
+    "shared_only",
+    "switch"
+  ],
+  "training": {
+    "nepoch": 50,
+    "batch_size": 100,
+    "eval_batch_size": 128,
+    "workers": 0,
+    "early_stopping_patience": 7,
+    "lisa_args": [
+      "--use-spatial-attention",
+      "3D",
+      "--head-pool",
+      "single_conv",
+      "--n-temporal-module-blocks",
+      "2",
+      "--n-channels-unmix",
+      "25",
+      "--n-channels-block",
+      "25",
+      "--weight-decay",
+      "0",
+      "--torch-deterministic"
+    ],
+    "objective": "upstream CLIPLoss, duplicate wav_index positives deduplicated, AdamW; skip batches with fewer than two distinct audio windows",
+    "checkpoint": "maximum macro-subject validation Top-10, break ties by macro-subject Top-1, keep earlier epoch on exact ties",
+    "probability_selection": "per fold and seed, best switch checkpoint validation Top-10 then Top-1; smaller p on exact tie; test never used",
+    "test_monitoring": false
+  },
+  "evaluation": {
+    "metrics": [
+      "top1",
+      "top10",
+      "mean_rank"
+    ],
+    "rank": "zero-based count of candidates with strictly larger cosine similarity; same frozen evaluator convention as exp09",
+    "aggregation": "windows -> subject across available sessions -> average over seeds within subject -> mean and 95% t interval over subjects",
+    "comparisons": [
+      "switch-individual",
+      "switch-shared_only",
+      "shared_only-individual"
+    ],
+    "statistics": "paired Wilcoxon across subjects, Holm correction across the three Top-10 comparisons; exploratory for partial folds",
+    "comparison_to_exp09": "historical numbers are contextual only: exp10 trains on 21 subjects and selects checkpoints on unseen validation subjects"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "fqw-checkpoint-2026-11-19",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "slidev slides.md --port 3032",
+    "build": "slidev build slides.md --base ./ --out dist"
+  },
+  "devDependencies": {
+    "@slidev/cli": "53.0.0",
+    "@slidev/theme-default": "0.25.0",
+    "playwright-chromium": "^1.64.0"
+  }
+}

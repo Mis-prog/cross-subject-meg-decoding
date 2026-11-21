@@ -32,6 +32,7 @@ env/
 *.ckpt
 **/*.csv
 **/*.json
+!experiments/exp10_shared_matrix/protocol.json
 
 # --- Артефакты обучения ---
 outputs/

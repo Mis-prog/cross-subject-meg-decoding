@@ -15,6 +15,7 @@
 | [exp08_09_full_lisa/](exp08_09_full_lisa/README.md) | exp08/exp09 — полный пайплайн LISA | 9 |
 | [exp08_matched22/](exp08_matched22/README.md) | exp08 — контроль на 22 участниках | 4 |
 | [exp09_new_subjects/](exp09_new_subjects/README.md) | exp09 — перенос на новых участников | 1 |
+| [exp10_shared_matrix/](exp10_shared_matrix/README.md) | exp10 — обучаемая общая матрица и случайная маршрутизация | 2 CLI/launcher |
 | [common/](common/README.md) | Общие инструменты | 1 |
 
 Для exp01/exp02 пока есть постановки и планы; отдельных скриптов этих этапов в рабочем дереве нет. Воспроизведение авторской модели входит в полный пайплайн exp08/exp09.

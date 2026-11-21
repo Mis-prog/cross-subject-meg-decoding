@@ -16,6 +16,7 @@ SCRIPTS = Path(__file__).resolve().parents[1] / 'code/scripts'
     'exp08_09_full_lisa/run_full_series.py',
     'exp08_matched22/run_matched22.py',
     'exp09_new_subjects/eval_mean_seen.py',
+    'exp10_shared_matrix/run_experiment.py',
 ])
 def test_help_from_unrelated_working_directory(script, tmp_path):
     result = subprocess.run([sys.executable, str(SCRIPTS / script), '--help'],
