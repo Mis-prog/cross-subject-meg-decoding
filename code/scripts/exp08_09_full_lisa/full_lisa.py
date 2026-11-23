@@ -131,7 +131,7 @@ def job_lock(job, out=OUT):
 
 # ---------------------------------------------------------------- check
 
-def check(canon=CANON, protocol=None, strict=True):
+def check(canon=CANON, protocol=None, strict=True, *, print_report=True):
     """Verify the prepared files and the split assumptions the experiments rely on."""
     canon = Path(canon)
     protocol = protocol or load_protocol()
@@ -170,7 +170,8 @@ def check(canon=CANON, protocol=None, strict=True):
             problems.append(f'missing coords/{name}')
     report = {'counts': counts, 'meg_recordings': len(keys), 'subjects_without_session_1': single,
               'audio_shapes': {k: list(v.shape) for k, v in audio.items()}, 'problems': problems}
-    print(json.dumps(report, indent=2))
+    if print_report:
+        print(json.dumps(report, indent=2))
     return report
 
 

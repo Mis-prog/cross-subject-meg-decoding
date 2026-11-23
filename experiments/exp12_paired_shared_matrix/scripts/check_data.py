@@ -1,6 +1,7 @@
 """Run the exp12 preflight on the canonical LISA dataset."""
 
 import argparse
+import json
 import sys
 from pathlib import Path
 from zipfile import BadZipFile
@@ -8,7 +9,7 @@ from zipfile import BadZipFile
 import pandas as pd
 from lisa.utils.constants import N_SUBJECTS, TEST_STORIES, TRAIN_STORIES
 
-from check_coords import check_coords
+from check_coords import COORDINATE_SHAPES, check_coords
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -53,21 +54,25 @@ def main() -> int:
     parser.add_argument("--canon", type=Path, required=True, help="каталог preprocessed")
     parser.add_argument("--reference-coords", type=Path, help="эталонный каталог coords для сверки SHA-256")
     args = parser.parse_args()
+    canon = args.canon.absolute()
 
-    problems = check_coords(args.canon, args.reference_coords)
-    missing = [name for name in DATA_FILES if not (args.canon / name).is_file()]
-    problems.extend(f"Файл отсутствует: {args.canon / name}" for name in missing)
+    problems = check_coords(canon, args.reference_coords)
+    missing = [name for name in DATA_FILES if not (canon / name).is_file()]
+    problems.extend(f"Файл отсутствует: {canon / name}" for name in missing)
     try:
         if not missing:
-            problems.extend(check_author_split(args.canon))
+            problems.extend(check_author_split(canon))
         if problems:
             for problem in problems:
                 print(problem, file=sys.stderr)
             return 1
-        report = full_lisa.check(canon=args.canon)
+        report = full_lisa.check(canon=canon, print_report=False)
     except (OSError, ValueError, EOFError, BadZipFile, AttributeError, TypeError) as error:
         print(f"Ошибка чтения подготовленных данных: {error}", file=sys.stderr)
         return 1
+    coordinate_files = tuple(f"coords/{name}" for name in COORDINATE_SHAPES)
+    paths = {name: str(canon / name) for name in (*DATA_FILES, *coordinate_files)}
+    print(json.dumps({"paths": paths, **report}, indent=2, ensure_ascii=False))
     return int(bool(report["problems"]))
 
 
