@@ -1,0 +1,213 @@
+{
+  "name": "full_lisa_generalization_v1",
+  "fixed_on": "2026-10-16",
+  "upstream": {
+    "repository": "https://github.com/ivsemenkov/LISA",
+    "commit": "ff9412e193a3877d07a27b644eb8a2575d357a32"
+  },
+  "data": {
+    "pipeline": "authors' clean pipeline: download_dataset.sh, run_mfa.sh, prepare_dataset.sh clean",
+    "window_seconds": 3.0,
+    "stride_seconds": 1.0,
+    "meg_sample_rate": 100,
+    "meg_offset_seconds": 0.15,
+    "audio_features": "facebook/wav2vec2-base-960h, mean of the last 4 hidden layers",
+    "train_stories": "story 0 sounds 0-3, story 1 sounds 0-5, story 2 sounds 0-7, story 3 sounds 0-4",
+    "validation_sounds": "story 3 sound 4 (authors' default 3:4)",
+    "test_sounds": "story 3 sounds 5-11; never used for training in any session",
+    "scaling": "authors' per-recording RobustScaler + StandardScaler fitted on the recording before its first test sound; unlabeled, but uses the target recording itself",
+    "canonical_counts": {
+      "train_audio_windows": 2698,
+      "train_rows": 132202,
+      "train_fit_audio_windows": 2590,
+      "train_fit_rows": 126910,
+      "validation_audio_windows": 108,
+      "validation_rows": 5292,
+      "test_audio_windows": 1005,
+      "test_rows": 49245
+    },
+    "subjects_without_session_1": [
+      3,
+      12,
+      16,
+      20,
+      21
+    ]
+  },
+  "training": {
+    "model": "2 temporal blocks, 25 branches, 3D spatial attention (authors' selected model)",
+    "lisa_train_args": [
+      "--device",
+      "cuda",
+      "--use-spatial-attention",
+      "3D",
+      "--head-pool",
+      "single_conv",
+      "--dl-n-workers",
+      "8",
+      "--nepoch",
+      "50",
+      "--weight-decay",
+      "0",
+      "--torch-deterministic",
+      "--early-stopping-patience",
+      "7",
+      "--n-temporal-module-blocks",
+      "2",
+      "--n-channels-unmix",
+      "25",
+      "--n-channels-block",
+      "25"
+    ],
+    "row_filtering": "Only the authors' df_train27.csv / df_test27.csv rows are filtered (by subject and session); MEG arrays, audio embeddings, model and trainer are unchanged.",
+    "untrained_slots": "Subject-layer slots of excluded subjects receive zero gradient (AdamW, weight decay 0) and stay at initialisation."
+  },
+  "evaluation": {
+    "bank": "all 1005 test audio windows, the same for every condition",
+    "metrics": {
+      "top1": "true window ranked first",
+      "top10": "true window in the first ten",
+      "top1_tol1": "first candidate is the true window or its 1-s neighbour in the same sound file (auxiliary)",
+      "rank": "0-based rank of the true window among 1005"
+    },
+    "chance": {
+      "top1": 0.000995,
+      "top10": 0.00995
+    },
+    "aggregation": "per window -> per subject (all evaluated rows of that subject in the condition) -> mean over seeds within subject -> statistics across subjects",
+    "statistics": "mean and 95% t-interval across subjects; paired Wilcoxon signed-rank across subjects, Holm correction within each experiment"
+  },
+  "experiments": {
+    "exp08_reproduction": {
+      "purpose": "Reproduce the authors' selected model; ceiling for exp08 and the own-W_s reference for exp09.",
+      "train_rows": "all subjects, both sessions",
+      "seeds": [
+        42,
+        43,
+        44
+      ],
+      "acceptance": "final-test Top-10 within the authors' range (70.0-70.9%, seeds 42-44: 70.598, 70.387, 70.003); a deviation of more than 2 p.p. stops the series for investigation"
+    },
+    "exp08_cross_session": {
+      "purpose": "Does a subject's W_s learned in one session work in the other session without any training?",
+      "directions": {
+        "A": {
+          "train_session": 0,
+          "target_session": 1
+        },
+        "B": {
+          "train_session": 1,
+          "target_session": 0
+        }
+      },
+      "train_rows": "all subjects that have the train session, train sounds of that session only",
+      "evaluated_subjects": "22 subjects with both sessions",
+      "seeds": [
+        42,
+        43,
+        44
+      ],
+      "conditions": {
+        "own_same": "own slot, test sounds of the train session (reference, no session change)",
+        "own_cross": "own slot, test sounds of the target session (main result)",
+        "mean_cross": "mean of the trained slots of all other subjects, target session",
+        "other_cross": "each other trained subject's slot in turn, target session; averaged over donors",
+        "ceiling": "exp08_reproduction model, own slot, target session test sounds"
+      },
+      "primary_comparison": "own_cross - own_same, per direction",
+      "secondary_comparisons": [
+        "own_cross - other_cross",
+        "own_cross - mean_cross",
+        "drop(A) - drop(B)"
+      ],
+      "interpretation": "In MEG-MASC both sessions contain the same stories, so in direction A the target session is a second listening. Comparing the drop in A and B separates the session change from stimulus familiarity on the listener's side."
+    },
+    "exp09_new_subjects": {
+      "purpose": "Zero-shot transfer to subjects absent from training using the mean subject matrix.",
+      "folds": [
+        [
+          11,
+          20,
+          22
+        ],
+        [
+          1,
+          2,
+          14
+        ],
+        [
+          16,
+          23,
+          26
+        ],
+        [
+          10,
+          19,
+          24
+        ],
+        [
+          12,
+          15,
+          17
+        ],
+        [
+          3,
+          18,
+          27
+        ],
+        [
+          4,
+          9,
+          13
+        ],
+        [
+          6,
+          8,
+          21
+        ],
+        [
+          5,
+          7,
+          25
+        ]
+      ],
+      "fold_generation": "numpy.random.default_rng(20261016).permutation(1..27), consecutive triples",
+      "train_rows": "all sessions of the 24 subjects outside the fold",
+      "evaluated_rows": "test sounds of every session of the held-out subjects",
+      "seeds": [
+        42
+      ],
+      "conditions": {
+        "mean": "mean of the 24 trained slots",
+        "mean_norm": "the same mean, rescaled to the average Frobenius norm of the 24 trained slots (rule fixed in advance from the exp06 diagnosis; no data of the new subject)",
+        "untrained": "the held-out subject's own, never-trained slot (sanity check, expected near chance)",
+        "own_seen": "exp08_reproduction seed 42, the subject's own trained slot (reference: the subject was in training)"
+      },
+      "primary_comparison": "mean - own_seen",
+      "secondary_comparisons": [
+        "mean_norm - mean",
+        "mean_norm - own_seen"
+      ],
+      "deviation": {
+        "date": "2026-10-17",
+        "executed_folds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "reason": "Shortened from 9 to 6 folds (18 held-out subjects) to obtain results sooner. Decided before any exp09 result was seen. Folds 6-8 remain defined and can be run later as confirmation."
+      }
+    }
+  },
+  "execution_record": {
+    "recorded_on": "2026-10-18",
+    "results": "experiments/results/full_raw",
+    "actual_preprocessing": "raw without ICA; NEMAR nm000229 v1.0.1, confirmed by user; original planned clean pipeline above retained as historical protocol",
+    "completed_tasks": 15,
+    "rank_check_deviation": "Original >=99% identical ranks was relaxed to >=95% identical, >=99.9% within two positions, Top-10 absolute difference <=0.002. Actual results in trainer_agreement.json.",
+    "interpretation_correction": "A/B session differences do not causally separate repeated listening from visit effects; training cohorts also differ (27 vs 22)."
+  }
+}
