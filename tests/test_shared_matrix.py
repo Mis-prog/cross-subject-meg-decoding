@@ -24,6 +24,35 @@ def protocol():
     return exp10.read_json(exp10.PROTOCOL)
 
 
+@pytest.mark.parametrize('layout', ['detached', 'loose', 'packed', 'worktree'])
+def test_git_head_without_git_binary(tmp_path, monkeypatch, layout):
+    monkeypatch.setenv('PATH', str(tmp_path / 'no-executables'))
+    checkout = tmp_path / 'lisa'
+    checkout.mkdir()
+    git_dir = checkout / '.git'
+    refs = git_dir
+    if layout == 'worktree':
+        refs = tmp_path / 'metadata'
+        git_dir = refs / 'worktrees' / 'worker'
+        git_dir.mkdir(parents=True)
+        (checkout / '.git').write_text('gitdir: ../metadata/worktrees/worker\n')
+        (git_dir / 'commondir').write_text('../..\n')
+    else:
+        git_dir.mkdir()
+    revision = 'ab' * 20
+    if layout == 'detached':
+        (git_dir / 'HEAD').write_text(f'{revision}\n')
+    else:
+        (git_dir / 'HEAD').write_text('ref: refs/heads/main\n')
+        if layout == 'loose':
+            branch = refs / 'refs/heads/main'
+            branch.parent.mkdir(parents=True)
+            branch.write_text(f'{revision}\n')
+        else:
+            (refs / 'packed-refs').write_text(f'# pack-refs with: peeled\n{revision} refs/heads/main\n')
+    assert exp10.git_head(checkout) == revision
+
+
 def test_folds_are_disjoint_and_cover_every_test_subject_once(protocol):
     specs = list(exp10.tasks(protocol).values())
     assert len(specs) == 27

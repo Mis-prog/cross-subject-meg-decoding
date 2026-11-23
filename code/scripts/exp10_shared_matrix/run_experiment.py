@@ -4,6 +4,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
+import re
 import subprocess
 import sys
 
@@ -84,6 +85,43 @@ def sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def git_head(checkout):
+    """Read HEAD from the checkout even if the compute node has no Git executable."""
+    try:
+        return subprocess.run(['git', '-C', str(checkout), 'rev-parse', 'HEAD'],
+                              check=True, capture_output=True, text=True).stdout.strip()
+    except FileNotFoundError:
+        git_dir = Path(checkout) / '.git'
+        if git_dir.is_file():
+            pointer = git_dir.read_text().strip()
+            if not pointer.startswith('gitdir: '):
+                raise ValueError(f'{git_dir}: invalid Git directory pointer')
+            git_dir = git_dir.parent / pointer.removeprefix('gitdir: ')
+
+        head = (git_dir / 'HEAD').read_text().strip()
+        if head.startswith('ref: '):
+            ref = head.removeprefix('ref: ')
+            if not ref.startswith('refs/') or '..' in Path(ref).parts:
+                raise ValueError(f'{git_dir / "HEAD"}: invalid Git reference')
+            common = git_dir / 'commondir'
+            refs = git_dir / common.read_text().strip() if common.is_file() else git_dir
+            loose_ref = refs / ref
+            if loose_ref.is_file():
+                head = loose_ref.read_text().strip()
+            else:
+                packed = refs / 'packed-refs'
+                if packed.is_file():
+                    for line in packed.read_text().splitlines():
+                        revision, _, name = line.partition(' ')
+                        if name == ref:
+                            head = revision
+                            break
+
+        if not re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', head):
+            raise ValueError(f'{checkout}: cannot resolve Git HEAD without Git; check out the pinned commit')
+        return head
+
+
 def source_identity(canon):
     """Small sources are hashed; large input arrays have explicit stat fingerprints."""
     sources = list(Path(__file__).parent.glob('*.py')) + [
@@ -104,8 +142,7 @@ def source_identity(canon):
                    Path(canon) / 'audio/extract_features_test4.npy',
                    Path(canon) / 'meg/meg27_sr100.npz']
     stats = {str(p): {'bytes': p.stat().st_size, 'mtime_ns': p.stat().st_mtime_ns} for p in large_files}
-    head = subprocess.run(['git', '-C', str(ROOT / 'code/LISA'), 'rev-parse', 'HEAD'],
-                          check=True, capture_output=True, text=True).stdout.strip()
+    head = git_head(ROOT / 'code/LISA')
     return {'sha256': hashes, 'large_inputs_stat_only': stats, 'upstream_head': head}
 
 
