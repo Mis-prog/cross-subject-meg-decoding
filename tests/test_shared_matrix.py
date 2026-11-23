@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT / 'code'))
 from scripts.exp10_shared_matrix import run_experiment as exp10
 from scripts.exp10_shared_matrix.recordings import RecordingStore
 from scripts.exp10_shared_matrix.subject_layer import SharedSubjectLayer
+from experiments.exp12_paired_shared_matrix.scripts import run_experiment as exp12
 
 
 @pytest.fixture
@@ -37,6 +38,60 @@ def test_folds_are_disjoint_and_cover_every_test_subject_once(protocol):
     broken['split']['folds'][1][0] = broken['split']['folds'][0][0]
     with pytest.raises(ValueError, match='partition'):
         exp10.tasks(broken)
+
+
+def test_exp12_folds_cover_every_subject_in_all_three_roles():
+    protocol = exp10.read_json(exp12.PROTOCOL)
+    specs = exp12.tasks(protocol)
+    assert set(specs) == {f'{variant}_f{fold}_s42' for fold in range(6)
+                          for variant in ('individual', 'switch_p0p9')}
+    for fold in range(6):
+        individual = specs[f'individual_f{fold}_s42']
+        switching = specs[f'switch_p0p9_f{fold}_s42']
+        for role in ('train_subjects', 'val_subjects', 'test_subjects'):
+            assert individual[role] == switching[role]
+        assert len(individual['train_subjects']) == 18
+    for role, repeats in [('train_subjects', 4), ('val_subjects', 1), ('test_subjects', 1)]:
+        subjects = [subject for spec in specs.values() if spec['variant'] == 'individual' for subject in spec[role]]
+        assert sorted(subjects) == sorted(list(range(1, 28)) * repeats)
+
+
+def test_exp12_summary_counts_only_completed_pairs(tmp_path):
+    protocol = exp10.read_json(exp12.PROTOCOL)
+    pending = {}
+    for name, spec in exp12.tasks(protocol).items():
+        run = tmp_path / 'runs' / name
+        run.mkdir(parents=True)
+        checkpoint = run / 'best.pt'
+        checkpoint.write_text(name)
+        exp10.write_json(run / 'manifest.json', dict(protocol=protocol, task=spec, settings={}, source={}))
+        exp10.write_json(run / 'done.json', dict(val_top10=0.5, val_top1=0.1))
+        evaluation = tmp_path / 'eval' / name
+        evaluation.mkdir(parents=True)
+        top10 = 0.75 if spec['variant'] == 'switch' else 0.5
+        pd.DataFrame(dict(subject_id=spec['test_subjects'], top1=0.25, top10=top10, mean_rank=5.0)).to_csv(
+            evaluation / 'subjects.csv', index=False)
+        done = {'checkpoint_sha256': exp10.sha256(checkpoint)}
+        if spec['fold'] != 0 and spec['variant'] == 'switch':
+            pending[evaluation / 'done.json'] = done
+        else:
+            exp10.write_json(evaluation / 'done.json', done)
+
+    summary = tmp_path / 'summary'
+    partial = exp12.summarize(protocol, tmp_path)
+    assert set(partial.subject_id) == set(protocol['split']['folds'][0])
+    coverage = exp10.read_json(summary / 'coverage.json')
+    assert coverage['completed_fold_seeds'] == [[0, 42]] and not coverage['complete']
+
+    for path, done in pending.items():
+        exp10.write_json(path, done)
+    full = exp12.summarize(protocol, tmp_path)
+    assert len(full) == 54 and set(full.subject_id) == set(range(1, 28))
+    assert exp10.read_json(summary / 'coverage.json')['complete']
+    comparisons = pd.read_csv(summary / 'comparisons.csv')
+    assert comparisons['comparison'].tolist() == ['switch-individual']
+    assert comparisons['subjects'].tolist() == [27]
+    assert comparisons['top10_delta'].tolist() == pytest.approx([0.25])
 
 
 def test_split_excludes_held_out_people_and_audio(protocol):
