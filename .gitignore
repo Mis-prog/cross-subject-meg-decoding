@@ -34,6 +34,7 @@ env/
 **/*.json
 !experiments/exp10_shared_matrix/protocol.json
 !experiments/exp12_paired_shared_matrix/protocol.json
+!experiments/exp13_shared_only/protocol.json
 
 # --- Артефакты обучения ---
 outputs/

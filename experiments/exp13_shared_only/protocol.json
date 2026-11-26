@@ -1,0 +1,65 @@
+{
+  "name": "exp13_shared_only_v1",
+  "fixed_on": "2026-11-26",
+  "upstream_commit": "ff9412e193a3877d07a27b644eb8a2575d357a32",
+  "reference_experiment": "exp12_paired_shared_matrix",
+  "reference_run": "full_4pergpu_20ep_20261123_141324",
+  "requested_variant": "shared_only",
+  "data": {
+    "preprocessing": "same prepared MEG-MASC archive as the exp12 reference run",
+    "subjects": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
+    "validation_sound": [3, 4],
+    "validation_candidates": 108,
+    "test_candidates": 1005,
+    "scaling": "authors' per-recording scaling uses unlabeled data from the target recording"
+  },
+  "split": {
+    "folds": [
+      [1, 2, 11, 20, 22],
+      [14, 16, 23, 26],
+      [10, 12, 15, 19, 24],
+      [3, 17, 18, 27],
+      [4, 6, 8, 9, 13],
+      [5, 7, 21, 25]
+    ],
+    "rule": "test=fold[k], validation=fold[(k+1)%6], train=remaining 18 subjects; use both sessions when available",
+    "training_windows": "canonical df_train27 excluding validation sound, training subjects only",
+    "validation_windows": "canonical df_train27 validation sound, validation subjects only",
+    "test_windows": "canonical df_test27, test subjects only",
+    "calibration_budget": "0 labeled target windows; no target gradient updates"
+  },
+  "seeds": [42],
+  "routing": {
+    "p_personal": [0.9],
+    "shared_only": "p_personal=0; all examples use a single trainable common matrix during training and evaluation",
+    "rescaling": "none"
+  },
+  "variants": ["individual", "shared_only", "switch"],
+  "training": {
+    "nepoch": 20,
+    "batch_size": 100,
+    "eval_batch_size": 128,
+    "workers": 0,
+    "early_stopping_patience": 7,
+    "lisa_args": [
+      "--use-spatial-attention", "3D",
+      "--head-pool", "single_conv",
+      "--n-temporal-module-blocks", "2",
+      "--n-channels-unmix", "25",
+      "--n-channels-block", "25",
+      "--weight-decay", "0",
+      "--torch-deterministic"
+    ],
+    "objective": "upstream CLIPLoss with duplicate audio targets deduplicated, AdamW; skip batches with fewer than two distinct audio windows",
+    "checkpoint": "maximum macro-subject validation Top-10, then Top-1, then earlier epoch",
+    "test_monitoring": false
+  },
+  "evaluation": {
+    "metrics": ["top1", "top10", "mean_rank"],
+    "rank": "zero-based count of candidates with strictly larger cosine similarity",
+    "aggregation": "windows across available sessions per subject, then equal weight per subject",
+    "primary_comparison": "shared_only - exp12 switch_p0p9",
+    "secondary_comparison": "shared_only - exp12 individual",
+    "partial_summary": "include only matched folds with completed test evaluation"
+  }
+}

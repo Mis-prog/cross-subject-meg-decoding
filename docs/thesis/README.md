@@ -4,6 +4,7 @@
 
 - [proposal/](proposal/README.md) — формулировка темы, цель, задачи и сохранённые варианты постановки.
 - [chapters/02_lisa_and_calibration.md](chapters/02_lisa_and_calibration.md) — рабочая глава о LISA и межсубъектной калибровке.
+- [chapters/03_cross_subject_generalization.md](chapters/03_cross_subject_generalization.md) — экспериментальная глава о переносе LISA на новых участников без размеченной калибровки.
 
 Это рабочие тексты: черновики не считаются автоматически согласованной редакцией. Изменения постановки сверяем с [протоколами встреч](../meetings/README.md), численные утверждения — с [экспериментами](../../experiments/).
 
